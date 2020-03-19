@@ -1,0 +1,214 @@
+#include <iostream>
+
+class Nod
+{
+    int info;
+    Nod *pre, *urm;
+
+public:
+    Nod();
+    Nod(int info, Nod *pre, Nod *urm);
+    ~Nod();
+
+    int getInfo(){return info;}
+    Nod* getPre(){return pre;}
+    Nod* getUrm(){return urm;}
+    void setInfo(int n_info){info = n_info;}
+    void setPre(Nod *n_pre){pre = n_pre;}
+    void setUrm(Nod *n_urm){urm = n_urm;}
+
+    friend class Lista_dublu_inlantuita;
+};
+
+Nod::Nod() {
+    info = 0;
+    pre = urm = nullptr;
+}
+
+Nod::Nod(int info, Nod *pre = nullptr, Nod *urm = nullptr) {
+    this->info = info;
+    this->pre = pre;
+    this->urm = urm;
+}
+
+Nod::~Nod() = default;
+
+class Info
+{
+    int val;
+    int poz;
+
+public:
+    Info();
+    Info(int val = 0, int poz = 0);
+
+    int getVal(){return val;}
+    int getPoz(){ return poz;}
+    void setVal(int val){this->val = val;}
+    void setPoz(int poz){this->poz = poz;}
+};
+
+Info::Info() {
+    val = 0;
+    poz = 0;
+}
+
+Info::Info(int val, int poz) {
+    this->val = val;
+    this->poz = poz;
+}
+
+
+
+class Lista_dublu_inlantuita
+{
+    Nod *prim, *ultim;
+
+public:
+    Lista_dublu_inlantuita();
+    ~Lista_dublu_inlantuita();
+    void adauga_element(Nod nod, int poz);
+    void sterge_element(int poz);
+    friend void operator>>(Lista_dublu_inlantuita& list, Info info_nod);
+    friend std::ostream& operator<<(std::ostream& out, Lista_dublu_inlantuita& list);
+    friend Lista_dublu_inlantuita& operator+(Lista_dublu_inlantuita &list1, Lista_dublu_inlantuita &list2);
+};
+
+Lista_dublu_inlantuita::Lista_dublu_inlantuita() {
+    prim = ultim = nullptr;
+}
+
+
+Lista_dublu_inlantuita::~Lista_dublu_inlantuita() {
+    Nod *curent = prim;
+    Nod *temp;
+
+    while(curent != nullptr){
+        temp = curent;
+        curent = curent->urm;
+        delete temp;
+    }
+
+    prim = ultim = nullptr;
+}
+
+void Lista_dublu_inlantuita::adauga_element(Nod nod, int poz) {
+    Nod *prev, *curent;
+    Nod *p;
+    int i;
+    p = new Nod(nod.getInfo());
+    if(prim == nullptr){
+        prim = ultim = p;
+    }else{
+        curent = prim;
+        for(i = 1; i < poz && curent != nullptr; i++){
+            prev = curent;
+            curent = curent->urm;
+        }
+        if(curent != nullptr){
+            prev->urm = p;
+            p->pre = prev;
+            p->urm = curent;
+            curent->pre = p;
+        }else{
+            ultim->urm = p;
+            p->pre = ultim;
+            p->urm = nullptr;
+            ultim = p;
+        }
+
+    }
+}
+
+void Lista_dublu_inlantuita::sterge_element(int poz) {
+    Nod *curent, *temp;
+
+    if(poz == 1){
+        this->prim = this->prim->urm;
+        this->prim->pre = nullptr;
+    }else {
+        curent = this->prim;
+        for (int i = 1; i < poz; i++) {
+            temp = curent;
+            curent = curent->urm;
+        }
+        if (curent->urm != nullptr) {
+            temp->urm = curent->urm;
+            curent->urm->pre = temp;
+        }else{
+            temp->urm = nullptr;
+            this->ultim = temp;
+        }
+    }
+}
+
+void operator>>(Lista_dublu_inlantuita& list, Info info_nod) {
+    list.adauga_element(Nod(info_nod.getVal()), info_nod.getPoz());
+}
+
+std::ostream& operator<<(std::ostream& out, Lista_dublu_inlantuita& list) {
+    Nod *curent = list.prim;
+    while(curent){
+        std::cout << curent->getInfo() << " ";
+        curent = curent->getUrm();
+    }
+    std::cout<<std::endl;
+    curent = list.ultim;
+    while(curent){
+        std::cout << curent->getInfo() << " ";
+        curent = curent->getPre();
+    }
+    return out;
+}
+
+Lista_dublu_inlantuita& operator+(Lista_dublu_inlantuita &list1, Lista_dublu_inlantuita &list2) {
+    static Lista_dublu_inlantuita list3;
+    Nod *curent;
+    Info temp{list1.prim->getInfo(), 1};
+    list3>>temp;
+
+    int i = 2;
+    curent = list1.prim->getUrm();
+    while(curent){
+        temp.setVal(curent->getInfo());
+        temp.setPoz(i);
+        list3>>temp;
+        curent = curent->getUrm();
+        i++;
+    }
+
+    curent = list2.prim;
+    while(curent){
+        temp.setVal(curent->getInfo());
+        temp.setPoz(i);
+        list3>>temp;
+        curent = curent->getUrm();
+        i++;
+    }
+    return list3;
+}
+
+int main() {
+
+    Lista_dublu_inlantuita l1;
+    Info i{7, 7}, j{8, 8};
+    l1.adauga_element(Nod(1), 1);
+    l1.adauga_element(Nod(2), 2);
+    l1.adauga_element(Nod(3), 2);
+    l1.adauga_element(Nod(4), 4);
+    l1.adauga_element(Nod(5), 5);
+    l1.adauga_element(Nod(6), 6);
+    l1.sterge_element(6);
+    l1 >> i;
+    l1 >> j;
+    std::cout << l1 << std::endl;
+    Lista_dublu_inlantuita l2;
+    l2.adauga_element(Nod(4), 1);
+    l2.adauga_element(Nod(5), 2);
+    l2.adauga_element(Nod(6), 3);
+    std::cout << l2;
+    std::cout << std::endl;
+    Lista_dublu_inlantuita l3 = l1+l2;
+    std::cout << l3;
+    return 0;
+}
