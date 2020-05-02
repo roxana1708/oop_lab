@@ -10,6 +10,7 @@
 #include <iostream>
 
 class ABC : public Arbore {
+
 public:
     Nod *m_rad;
 
@@ -20,19 +21,11 @@ public:
     }
 
     ABC(ABC &abc);
-    void copieABC(Nod *&copie, Nod *&sursa);
-
     virtual ~ABC();
-    void sterge_ABC(Nod *nod);
 
     virtual Nod* getRadacina();
     virtual void setRadacina(Nod* rad);
 
-    Nod* inserareABC(Nod *&root, Nod *&x);
-    void inserareVal(int val);
-    Nod* deleteBST(Nod *&root, int data);
-    void dltBST(Nod *&nod);
-    void stergeNod(int data);
     Nod* search(Nod *root, int key);
 
     virtual ABC& operator=(ABC& abc);
@@ -40,6 +33,23 @@ public:
     friend std::ostream& operator<<(std::ostream& msj, ABC& abc);
 
     virtual int adancimeArbore(Nod* root);
+
+    Nod* inserareABC(Nod *&root, Nod *&x);
+    Nod* deleteBST(Nod *&root, int data);
+
+    void insert(int vector[]);
+    void sterge(int vector[]);
+
+private:
+    void copieABC(Nod *&copie, Nod *&sursa);
+    void sterge_ABC(Nod *nod);
+
+    void inserareVal(int val);
+
+    void dltBST(Nod *&nod);
+    void stergeNod(int data);
+
 };
 
 #endif //OOP_TEMA2_ABC_H
+
