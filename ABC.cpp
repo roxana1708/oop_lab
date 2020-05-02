@@ -140,6 +140,16 @@ void ABC::inserareVal(int val) {
     m_nr_noduri++;
 }
 
+void ABC::insert(int vector[]) {
+    int info = vector[0];
+    int i = 1;
+    while (info) {
+        inserareVal(info);
+        info = vector[i];
+        i++;
+    }
+}
+
 Nod* minValueNode(Nod *&node) {
 
     Nod *ptr = node;
@@ -237,6 +247,16 @@ void ABC::stergeNod(int data) {
     Nod *nod = deleteBST(this->m_rad, data);
     dltBST(nod);
     m_nr_noduri--;
+}
+
+void ABC::sterge(int vector[]) {
+    int info = vector[0];
+    int i = 1;
+    while (info) {
+        stergeNod(info);
+        info = vector[i];
+        i++;
+    }
 }
 
 int ABC::adancimeArbore(Nod *root)
