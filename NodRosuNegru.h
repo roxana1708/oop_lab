@@ -2,38 +2,41 @@
 // Created by Roxana on 2020-04-27.
 //
 
-#ifndef OOP_TEMA2_NODROSUNEGRU_H
-#define OOP_TEMA2_NODROSUNEGRU_H
+#include "NodRosuNegru.h"
 
-#include "Nod.h"
+Nod_rosu_negru* Nod_rosu_negru::getParinte() {
+    return static_cast<Nod_rosu_negru*>(this->m_parinte);
+}
 
-enum Culoare {Rosu, Negru, Dublu};
+Nod_rosu_negru* Nod_rosu_negru::getSt() {
+    return static_cast<Nod_rosu_negru*>(this->m_st);
+}
 
-class Nod_rosu_negru : public Nod {
+Nod_rosu_negru* Nod_rosu_negru::getDr() {
+    return static_cast<Nod_rosu_negru*>(this->m_dr);
+}
 
-protected:
-    Culoare m_culoare;
+void Nod_rosu_negru::setParinte(Nod_rosu_negru* p) {
+    this->m_parinte = p;
+}
 
-public:
-    Nod_rosu_negru(int info = 0, Nod_rosu_negru *st = nullptr, Nod_rosu_negru *dr = nullptr, Nod_rosu_negru *parinte = nullptr, Culoare culoare = Rosu)
-            : Nod(info, st, dr, parinte), m_culoare{ culoare }
-    {
+void Nod_rosu_negru::setSt(Nod_rosu_negru* st) {
+    this->m_st = st;
+}
 
-    }
+void Nod_rosu_negru::setDr(Nod_rosu_negru* dr) {
+    this->m_dr = dr;
+}
 
-    Nod_rosu_negru(const Nod_rosu_negru &nod);
+Culoare getCuloare(Nod_rosu_negru *x) {
+    if (x == nullptr)
+        return Negru;
+    return x->m_culoare;
+}
 
-    virtual Nod_rosu_negru* getParinte();
-    virtual Nod_rosu_negru* getSt();
-    virtual Nod_rosu_negru* getDr();
+void setCuloare(Nod_rosu_negru *x, Culoare color) {
+    if (x == nullptr)
+        return;
 
-    void setParinte(Nod_rosu_negru* p);
-    void setSt(Nod_rosu_negru* st);
-    void setDr(Nod_rosu_negru* dr);
-
-    friend Culoare getCuloare(Nod_rosu_negru *x);
-    friend void setCuloare(Nod_rosu_negru *x, Culoare color);
-
-};
-
-#endif //OOP_TEMA2_NODROSUNEGRU_H
+    x->m_culoare = color;
+}
