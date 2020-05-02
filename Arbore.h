@@ -15,8 +15,10 @@ public:
 
     }
 
-    //virtual int adancimeArbore(Nod *tree);
+    virtual ~Arbore() = default;
 
+    virtual void insert(int vector[]) = 0;
+    virtual void sterge(int vector[]) = 0;
 };
 
 #endif //OOP_TEMA2_ARBORE_H
