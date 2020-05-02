@@ -91,6 +91,16 @@ void Arbore_bicolor::insertRBT(int info) {
     m_nr_noduri++;
 }
 
+void Arbore_bicolor::insert(int vector[]) {
+    int info = vector[0];
+    int i = 1;
+    while (info) {
+        insertRBT(info);
+        info = vector[i];
+        i++;
+    }
+}
+
 void Arbore_bicolor::rotateLeft(Nod_rosu_negru *&x) {
 
     Nod_rosu_negru *right_child = x->getDr();
@@ -140,6 +150,63 @@ void swapColor(Nod_rosu_negru *a, Nod_rosu_negru *b) {
     setCuloare(b, aux);
 }
 
+void Arbore_bicolor::colorareCazUnchiRosu(Nod_rosu_negru *b, Nod_rosu_negru *p, Nod_rosu_negru *u) {
+
+    setCuloare(u, Negru);
+    setCuloare(p, Negru);
+    setCuloare(b, Rosu);
+}
+
+void Arbore_bicolor::rotatieCazPStUNegru(Nod_rosu_negru *&b, Nod_rosu_negru *&p, Nod_rosu_negru *&x) {
+    if (x == p->getDr())
+    {
+        rotateLeft(p);
+        x = p;
+        p = x->getParinte();
+    }
+
+    rotateRight(b);
+    swapColor(p, b);
+    x = p;
+}
+
+void Arbore_bicolor::colorareCazParinteFiuSt(Nod_rosu_negru *&b, Nod_rosu_negru *&p, Nod_rosu_negru *&x) {
+    Nod_rosu_negru *unchi = b->getDr();
+
+    if(unchi != nullptr && getCuloare(unchi) == Rosu)
+    {
+        colorareCazUnchiRosu(b, p, unchi);
+        x = b;
+    }
+    else
+        rotatieCazPStUNegru(b, p, x);
+}
+
+void Arbore_bicolor::rotatieCazPDrUNegru(Nod_rosu_negru *&b, Nod_rosu_negru *&p, Nod_rosu_negru *&x) {
+    if (x == p->getSt())
+    {
+        rotateRight(p);
+        x = p;
+        p = x->getParinte();
+    }
+
+    rotateLeft(b);
+    swapColor(p, b);
+    x = p;
+}
+
+void Arbore_bicolor::colorareCazParinteFiuDr(Nod_rosu_negru *&b, Nod_rosu_negru *&p, Nod_rosu_negru *&x) {
+    Nod_rosu_negru *unchi = b->getSt();
+
+    if(unchi != nullptr && getCuloare(unchi) == Rosu)
+    {
+        colorareCazUnchiRosu(b, p, unchi);
+        x = b;
+    }
+    else
+        rotatieCazPDrUNegru(b, p, x);
+}
+
 void Arbore_bicolor::fix(Nod_rosu_negru *&x) {
 
     Nod_rosu_negru *parinte = nullptr;
@@ -152,53 +219,11 @@ void Arbore_bicolor::fix(Nod_rosu_negru *&x) {
 
         if (parinte == bunic->getSt())
         {
-            Nod_rosu_negru *uncle = bunic->getDr();
-
-            if(uncle != nullptr && getCuloare(uncle) == Rosu)
-            {
-                setCuloare(uncle, Negru);
-                setCuloare(parinte, Negru);
-                setCuloare(bunic, Rosu);
-                x = bunic;
-            }
-            else
-            {
-                if (x == parinte->getDr())
-                {
-                    rotateLeft(parinte);
-                    x = parinte;
-                    parinte = x->getParinte();
-                }
-
-                rotateRight(bunic);
-                swapColor(parinte, bunic);
-                x = parinte;
-            }
+            colorareCazParinteFiuSt(bunic, parinte, x);
         }
         else
         {
-            Nod_rosu_negru *uncle = bunic->getSt();
-
-            if(uncle != nullptr && getCuloare(uncle) == Rosu)
-            {
-                setCuloare(uncle, Negru);
-                setCuloare(parinte, Negru);
-                setCuloare(bunic, Rosu);
-                x = bunic;
-            }
-            else
-            {
-                if (x == parinte->getSt())
-                {
-                    rotateRight(parinte);
-                    x = parinte;
-                    parinte = x->getParinte();
-                }
-
-                rotateLeft(bunic);
-                swapColor(parinte, bunic);
-                x = parinte;
-            }
+            colorareCazParinteFiuDr(bunic, parinte, x);
         }
     }
 
@@ -225,149 +250,184 @@ void Arbore_bicolor::deleteRBT(int info) {
     m_nr_noduri--;
 }
 
+void Arbore_bicolor::sterge(int vector[]) {
+    int info = vector[0];
+    int i = 1;
+    while (info) {
+        deleteRBT(info);
+        info = vector[i];
+        i++;
+    }
+}
+
+void stergereCazNRFiuSt(Nod_rosu_negru *&nod, Nod_rosu_negru *&copil) {
+    nod->getParinte()->setSt(copil);
+
+    if (copil != nullptr)
+        copil->setParinte(nod->getParinte());
+
+
+    setCuloare(copil, Negru);
+    delete (nod);
+}
+
+void stergereCazNRFiuDr(Nod_rosu_negru *&nod, Nod_rosu_negru *&copil) {
+    nod->getParinte()->setDr(copil);
+
+    if (copil != nullptr)
+        copil->setParinte(nod->getParinte());
+
+    setCuloare(copil, Negru);
+    delete (nod);
+}
+
+void Arbore_bicolor::stergereCazNoduriRosii(Nod_rosu_negru *&nod) {
+    Nod_rosu_negru *copil = nod->getSt() != nullptr ? nod->getSt() : nod->getDr();
+
+    if (nod == nod->getParinte()->getSt())
+        stergereCazNRFiuSt(nod, copil);
+    else
+        stergereCazNRFiuDr(nod, copil);
+}
+
+void colorareCazFrateRosu(Nod_rosu_negru *&frate, Nod_rosu_negru *&parinte) {
+    setCuloare(frate, Negru);
+    setCuloare(parinte, Rosu);
+}
+
+void cazFrateFiiNegrii(Nod_rosu_negru *&ptr, Nod_rosu_negru *&frate, Nod_rosu_negru *&parinte) {
+    setCuloare(frate, Rosu);
+
+    if (getCuloare(parinte) == Rosu)
+        setCuloare(parinte, Negru);
+    else
+        setCuloare(parinte, Dublu);
+
+    ptr = parinte;
+}
+
+void Arbore_bicolor::stergereColorareCazFrateFiuDrN(Nod_rosu_negru *&frate, Nod_rosu_negru *&parinte) {
+    setCuloare(frate->getSt(), Negru);
+    setCuloare(frate, Rosu);
+    rotateRight(frate);
+    frate = parinte->getDr();
+}
+
+void Arbore_bicolor::stergereColorareCazFrateFiuStN(Nod_rosu_negru *&frate, Nod_rosu_negru *&parinte) {
+    setCuloare(frate->getDr(), Negru);
+    setCuloare(frate, Rosu);
+    rotateLeft(frate);
+    frate = parinte->getSt();
+}
+
+void stergereColorareFrateParinte(Nod_rosu_negru *&frate, Nod_rosu_negru *&fiuFrate, Nod_rosu_negru *&parinte) {
+    setCuloare(frate, getCuloare(parinte));
+    setCuloare(parinte, Negru);
+    setCuloare(fiuFrate, Negru);
+}
+
+int Arbore_bicolor::stergereCazNNFiuSt(Nod_rosu_negru *&ptr, Nod_rosu_negru *&frate, Nod_rosu_negru *&parinte) {
+    int ok = 1;
+    frate = parinte->getDr();
+
+    if (getCuloare(frate) == Rosu) {
+        colorareCazFrateRosu(frate, parinte);
+        rotateLeft(parinte);
+    }
+    else {
+        if (getCuloare(frate->getSt()) == Negru && getCuloare(frate->getDr()) == Negru)
+            cazFrateFiiNegrii(ptr, frate,parinte);
+        else
+        {
+            if (getCuloare(frate->getDr()) == Negru)
+                stergereColorareCazFrateFiuDrN(frate, parinte);
+
+            Nod_rosu_negru *fiuFrate = frate->getDr();
+            stergereColorareFrateParinte(frate, fiuFrate, parinte);
+            rotateLeft(parinte);
+
+            ok = 0;
+        }
+    }
+
+    return ok;
+}
+
+int Arbore_bicolor::stergereCazNNFiuDr(Nod_rosu_negru *&ptr, Nod_rosu_negru *&frate, Nod_rosu_negru *&parinte) {
+    int ok = 1;
+    frate = parinte->getSt();
+
+    if (getCuloare(frate) == Rosu)
+    {
+        colorareCazFrateRosu(frate, parinte);
+        rotateRight(parinte);
+    }
+    else
+    {
+        if (getCuloare(frate->getSt()) == Negru && getCuloare(frate->getDr()) == Negru)
+            cazFrateFiiNegrii(ptr, frate, parinte);
+        else
+        {
+            if (getCuloare(frate->getSt()) == Negru)
+                stergereColorareCazFrateFiuStN(frate, parinte);
+
+            Nod_rosu_negru *fiuFrate = frate->getSt();
+            stergereColorareFrateParinte(frate, fiuFrate, parinte);
+            rotateRight(parinte);
+
+            ok = 0;
+        }
+    }
+    return ok;
+}
+
+void Arbore_bicolor::stergereCazNodNegru(Nod_rosu_negru *&nod) {
+    Nod_rosu_negru *frate = nullptr;
+    Nod_rosu_negru *parinte = nullptr;
+    Nod_rosu_negru *ptr = nod;
+
+    setCuloare(ptr, Dublu);
+
+    int ok;
+
+    while (ptr != getRadacina() && getCuloare(ptr) == Dublu)
+    {
+        parinte = ptr->getParinte();
+
+        if (ptr == parinte->getSt()) {
+            ok = stergereCazNNFiuSt(ptr, frate, parinte);
+            if (ok == 0)
+                break;
+        }
+        else {
+            ok = stergereCazNNFiuDr(ptr, frate, parinte);
+            if (ok == 0)
+                break;
+        }
+    }
+
+    if (nod == nod->getParinte()->getSt())
+        nod->getParinte()->setSt(nullptr);
+    else
+        nod->getParinte()->setDr(nullptr);
+
+    delete(nod);
+    setCuloare(getRadacina(), Negru);
+}
+
 void Arbore_bicolor::fixDelete(Nod_rosu_negru *&nod) {
     if (nod == nullptr)
         return;
 
-    if (nod == getRadacina())
-    {
+    if (nod == getRadacina()) {
         setRadacina(nullptr);
         return;
     }
 
     if (getCuloare(nod) == Rosu || getCuloare(nod->getSt()) == Rosu || getCuloare(nod->getDr()) == Rosu)
-    {
-        Nod_rosu_negru *copil = nod->getSt() != nullptr ? nod->getSt() : nod->getDr();
-
-        if (nod == nod->getParinte()->getSt())
-        {
-            nod->getParinte()->setSt(copil);
-
-            if (copil != nullptr)
-                copil->setParinte(nod->getParinte());
-
-
-            setCuloare(copil, Negru);
-            delete (nod);
-        }
-        else
-        {
-            nod->getParinte()->setDr(copil);
-
-            if (copil != nullptr)
-                copil->setParinte(nod->getParinte());
-
-
-            setCuloare(copil, Negru);
-            delete (nod);
-        }
-    }
+        stergereCazNoduriRosii(nod);
     else
-    {
-        Nod_rosu_negru *frate = nullptr;
-        Nod_rosu_negru *parinte = nullptr;
-        Nod_rosu_negru *ptr = nod;
-
-        setCuloare(ptr, Dublu);
-
-        while (ptr != getRadacina() && getCuloare(ptr) == Dublu)
-        {
-            parinte = ptr->getParinte();
-
-            if (ptr == parinte->getSt())
-            {
-                frate = parinte->getDr();
-
-                if (getCuloare(frate) == Rosu)
-                {
-                    setCuloare(frate, Negru);
-                    setCuloare(parinte, Rosu);
-                    rotateLeft(parinte);
-                }
-                else
-                {
-                    if (getCuloare(frate->getSt()) == Negru && getCuloare(frate->getDr()) == Negru)
-                    {
-                        setCuloare(frate, Rosu);
-
-                        if(getCuloare(parinte) == Rosu)
-                            setCuloare(parinte, Negru);
-                        else
-                            setCuloare(parinte, Dublu);
-
-                        ptr = parinte;
-                    }
-                    else
-                    {
-                        if (getCuloare(frate->getDr()) == Negru)
-                        {
-                            setCuloare(frate->getSt(), Negru);
-                            setCuloare(frate, Rosu);
-                            rotateRight(frate);
-                            frate = parinte->getDr();
-                        }
-
-                        setCuloare(frate, getCuloare(parinte));
-                        setCuloare(parinte, Negru);
-                        setCuloare(frate->getDr(), Negru);
-                        rotateLeft(parinte);
-
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                frate = parinte->getSt();
-
-                if (getCuloare(frate) == Rosu)
-                {
-                    setCuloare(frate, Negru);
-                    setCuloare(parinte, Rosu);
-                    rotateRight(parinte);
-                }
-                else
-                {
-                    if (getCuloare(frate->getSt()) == Negru && getCuloare(frate->getDr()) == Negru)
-                    {
-                        setCuloare(frate, Rosu);
-
-                        if (getCuloare(parinte) == Rosu)
-                            setCuloare(parinte, Negru);
-                        else
-                            setCuloare(parinte, Dublu);
-
-                        ptr = parinte;
-                    }
-                    else
-                    {
-                        if (getCuloare(frate->getSt()) == Negru)
-                        {
-                            setCuloare(frate->getDr(), Negru);
-                            setCuloare(frate, Rosu);
-                            rotateLeft(frate);
-                            frate = parinte->getSt();
-                        }
-
-                        setCuloare(frate, getCuloare(parinte));
-                        setCuloare(parinte, Negru);
-                        setCuloare(frate->getSt(), Negru);
-                        rotateRight(parinte);
-
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (nod == nod->getParinte()->getSt())
-            nod->getParinte()->setSt(nullptr);
-        else
-            nod->getParinte()->setDr(nullptr);
-
-        delete(nod);
-        setCuloare(getRadacina(), Negru);
-    }
+        stergereCazNodNegru(nod);
 
 
 }
@@ -380,14 +440,14 @@ int Arbore_bicolor::adancimeArbore(Nod_rosu_negru *root) {
     if (root->getSt() == nullptr && root->getDr() == nullptr)
         return 1;
 
-
+    int maxDr = 0, maxSt = 0;
     if (!root->getSt())
-        return adancimeArbore(root->getDr()) + 1;
+        maxDr = adancimeArbore(root->getDr()) + 1;
 
 
     if (!root->getDr())
-        return adancimeArbore(root->getSt()) + 1;
+        maxSt = adancimeArbore(root->getSt()) + 1;
 
-    return 1 + (adancimeArbore(root->getSt()) > adancimeArbore(root->getDr()) ? adancimeArbore(root->getSt()):adancimeArbore(root->getDr()));
+    return 1 + std::max(maxSt, maxDr);
 
 }
