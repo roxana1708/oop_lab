@@ -4,24 +4,6 @@
 
 #include "Nod.h"
 
-Nod&  Nod::operator=(Nod& nod) {
-    this->setInfo(nod.getInfo());
-
-    this->setSt(nod.getSt());
-
-    this->setDr(nod.getDr());
-
-    this->setParinte(nod.getParinte());
-    return *this;
-}
-
-Nod::Nod(const Nod &nod) {
-    m_info = nod.m_info;
-    m_st = nod.m_st;
-    m_dr = nod.m_dr;
-    m_parinte = nod.m_parinte;
-}
-
 
 int Nod::getInfo() {
     return this->m_info;
