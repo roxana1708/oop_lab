@@ -274,6 +274,6 @@ int ABC::adancimeArbore(Nod *root)
     if (!root->getDr())
         return adancimeArbore(root->getSt()) + 1;
 
-    return 1 + (adancimeArbore(root->getSt()) > adancimeArbore(root->getDr()) ? adancimeArbore(root->getSt()):adancimeArbore(root->getDr()));
+    return 1 + std::max(adancimeArbore(root->getSt()), adancimeArbore(root->getDr()));
 
 }
