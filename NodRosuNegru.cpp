@@ -4,14 +4,6 @@
 
 #include "NodRosuNegru.h"
 
-Nod_rosu_negru::Nod_rosu_negru(const Nod_rosu_negru &nod) {
-    m_info = nod.m_info;
-    m_st = nod.m_st;
-    m_dr = nod.m_dr;
-    m_parinte = nod.m_parinte;
-    m_culoare = nod.m_culoare;
-}
-
 Nod_rosu_negru* Nod_rosu_negru::getParinte() {
     return static_cast<Nod_rosu_negru*>(this->m_parinte);
 }
