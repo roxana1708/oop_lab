@@ -17,8 +17,9 @@ public:
 
     }
 
-    Nod(const Nod &nod);
+    Nod(const Nod &nod) = delete;
 
+    virtual ~Nod() = default;
     int getInfo();
     virtual Nod* getParinte();
     virtual Nod* getSt();
@@ -29,7 +30,7 @@ public:
     virtual void setDr(Nod* dr);
     void setInfo(int info);
 
-    Nod& operator=(Nod& nod);
+    Nod& operator=(Nod& nod) = delete;
 };
 
 #endif //OOP_TEMA2_NOD_H
