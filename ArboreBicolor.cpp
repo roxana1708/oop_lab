@@ -440,14 +440,13 @@ int Arbore_bicolor::adancimeArbore(Nod_rosu_negru *root) {
     if (root->getSt() == nullptr && root->getDr() == nullptr)
         return 1;
 
-    int maxDr = 0, maxSt = 0;
     if (!root->getSt())
-        maxDr = adancimeArbore(root->getDr()) + 1;
+        return adancimeArbore(root->getDr()) + 1;
 
 
     if (!root->getDr())
-        maxSt = adancimeArbore(root->getSt()) + 1;
+        return adancimeArbore(root->getSt()) + 1;
 
-    return 1 + std::max(maxSt, maxDr);
+    return 1 + std::max(adancimeArbore(root->getSt()), adancimeArbore(root->getDr()));
 
 }
